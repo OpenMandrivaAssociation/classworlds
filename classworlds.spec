@@ -42,7 +42,7 @@
 
 Name:           classworlds
 Version:        %{classworlds_version}
-Release:        %mkrel 1.1.1
+Release:        %mkrel 1.1.2
 Epoch:          0
 Summary:        Classworlds Classloader Framework
 
@@ -165,6 +165,14 @@ cp -pr target/docs/* $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%if %{gcj_support}
+%post
+%{update_gcjdb}
+
+%postun
+%{clean_gcjdb}
+%endif
 
 %files
 %defattr(-,root,root,-)

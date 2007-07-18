@@ -42,7 +42,7 @@
 
 Name:           classworlds
 Version:        %{classworlds_version}
-Release:        %mkrel 1.1.2
+Release:        %mkrel 1.1.3
 Epoch:          0
 Summary:        Classworlds Classloader Framework
 
@@ -81,10 +81,10 @@ BuildRequires:  saxon-scripts
 %endif
 BuildRequires:  junit
 BuildRequires:  xerces-j2
-BuildRequires:  xml-commons-apis
+BuildRequires:  xml-commons-jaxp-1.3-apis
 Requires:  jpackage-utils
 Requires:  xerces-j2
-Requires:  xml-commons-apis
+Requires:  xml-commons-jaxp-1.3-apis
 
 %description
 Classworlds is a framework for container developers 
@@ -129,7 +129,7 @@ cp %{SOURCE1} build.xml
 %build
 %if %{with_maven}
 pushd lib
-ln -sf $(build-classpath xml-commons-apis) xmlApis-2.0.2.jar
+ln -sf $(build-classpath xml-commons-jaxp-1.3-apis) xmlApis-2.0.2.jar
 ln -sf $(build-classpath ant) jakarta-ant-1.5.jar
 ln -sf $(build-classpath maven) maven.jar
 popd

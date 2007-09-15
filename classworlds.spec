@@ -42,7 +42,7 @@
 
 Name:           classworlds
 Version:        %{classworlds_version}
-Release:        %mkrel 1.1.3
+Release:        %mkrel 1.1.4
 Epoch:          0
 Summary:        Classworlds Classloader Framework
 
@@ -65,8 +65,6 @@ Patch1:         %{name}-%{version}-project_properties.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %if %{gcj_support}
-Requires(post): java-gcj-compat
-Requires(postun): java-gcj-compat
 BuildRequires:  java-gcj-compat-devel
 %else
 BuildArch:      noarch

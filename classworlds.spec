@@ -42,7 +42,7 @@
 
 Name:           classworlds
 Version:        %{classworlds_version}
-Release:        %mkrel 1.1.4
+Release:        %mkrel 1.1.5
 Epoch:          0
 Summary:        Classworlds Classloader Framework
 
@@ -70,7 +70,7 @@ BuildRequires:  java-gcj-compat-devel
 BuildArch:      noarch
 BuildRequires:  java-devel
 %endif
-BuildRequires:  jpackage-utils >= 0:1.6
+BuildRequires:  java-rpmbuild >= 0:1.6
 BuildRequires:  ant >= 0:1.6
 %if %{with_maven}
 BuildRequires:  maven >= 0:1.1

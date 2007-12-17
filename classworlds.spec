@@ -62,7 +62,6 @@ Patch0:         %{name}-%{version}-project_xml.patch
 Patch1:         %{name}-%{version}-project_properties.patch
 %endif
 
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %if %{gcj_support}
 BuildRequires:  java-gcj-compat-devel

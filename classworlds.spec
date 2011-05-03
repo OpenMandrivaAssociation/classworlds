@@ -42,7 +42,7 @@
 
 Name:           classworlds
 Version:        %{classworlds_version}
-Release:        %mkrel 1.1.8
+Release:        %mkrel 1.1.9
 Epoch:          0
 Summary:        Classworlds Classloader Framework
 

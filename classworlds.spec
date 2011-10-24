@@ -30,7 +30,6 @@
 
 # We want to build without maven
 %define _without_maven 1
-%define gcj_support 1
 
 # If you don't want to build with maven,
 # give rpmbuild option '--without maven'
@@ -42,8 +41,7 @@
 
 Name:           classworlds
 Version:        %{classworlds_version}
-Release:        %mkrel 1.1.9
-Epoch:          0
+Release:        5
 Summary:        Classworlds Classloader Framework
 
 Group:          Development/Java
@@ -62,15 +60,10 @@ Patch0:         %{name}-%{version}-project_xml.patch
 Patch1:         %{name}-%{version}-project_properties.patch
 %endif
 
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-%if %{gcj_support}
-BuildRequires:  java-gcj-compat-devel
-%else
 BuildArch:      noarch
-BuildRequires:  java-devel
-%endif
-BuildRequires:  java-rpmbuild >= 0:1.6
+BuildRequires:  jpackage-utils >= 0:1.6
 BuildRequires:  ant >= 0:1.6
 %if %{with_maven}
 BuildRequires:  maven >= 0:1.1
@@ -79,10 +72,10 @@ BuildRequires:  saxon-scripts
 %endif
 BuildRequires:  junit
 BuildRequires:  xerces-j2
-BuildRequires:  xml-commons-jaxp-1.3-apis
+BuildRequires:  xml-commons-apis
 Requires:  jpackage-utils
 Requires:  xerces-j2
-Requires:  xml-commons-jaxp-1.3-apis
+Requires:  xml-commons-apis
 
 %description
 Classworlds is a framework for container developers 
@@ -127,7 +120,7 @@ cp %{SOURCE1} build.xml
 %build
 %if %{with_maven}
 pushd lib
-ln -sf $(build-classpath xml-commons-jaxp-1.3-apis) xmlApis-2.0.2.jar
+ln -sf $(build-classpath xml-commons-apis) xmlApis-2.0.2.jar
 ln -sf $(build-classpath ant) jakarta-ant-1.5.jar
 ln -sf $(build-classpath maven) maven.jar
 popd
@@ -136,7 +129,7 @@ maven \
          -Dmaven.home.local=$(pwd)/.maven jar javadoc xdoc:transform
 %else
 export CLASSPATH=target/classes
-%{ant} -Dbuild.sysclasspath=only
+ant -Dbuild.sysclasspath=only
 %endif
 
 %install
@@ -157,29 +150,13 @@ install -dm 755 $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
 cp -pr target/docs/* $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
 %endif
 
-%if %{gcj_support}
-%{_bindir}/aot-compile-rpm
-%endif
-
 %clean
 rm -rf $RPM_BUILD_ROOT
-
-%if %{gcj_support}
-%post
-%{update_gcjdb}
-
-%postun
-%{clean_gcjdb}
-%endif
 
 %files
 %defattr(-,root,root,-)
 %doc LICENSE.txt
 %{_javadir}/*.jar
-%if %{gcj_support}
-%dir %{_libdir}/gcj/%{name}
-%attr(-,root,root) %{_libdir}/gcj/%{name}/*
-%endif
 
 %if %{with_maven}
 %files javadoc
@@ -190,3 +167,4 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %doc %{_docdir}/%{name}-%{version}
 %endif
+

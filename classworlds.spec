@@ -41,7 +41,7 @@
 
 Name:           classworlds
 Version:        %{classworlds_version}
-Release:        5
+Release:        7
 Summary:        Classworlds Classloader Framework
 
 Group:          Development/Java

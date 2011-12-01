@@ -133,25 +133,25 @@ ant -Dbuild.sysclasspath=only
 %endif
 
 %install
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 install -Dpm 644 target/%{name}-%{version}.jar \
-  $RPM_BUILD_ROOT%{_javadir}/%{name}-%{version}.jar
-ln -s %{name}-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/%{name}.jar
+  %{buildroot}%{_javadir}/%{name}-%{version}.jar
+ln -s %{name}-%{version}.jar %{buildroot}%{_javadir}/%{name}.jar
 
 %if %{with_maven}
-install -dm 755 $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
-cp -pr target/docs/apidocs/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
-ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_javadocdir}/%{name} # ghost symlink
+install -dm 755 %{buildroot}%{_javadocdir}/%{name}-%{version}
+cp -pr target/docs/apidocs/* %{buildroot}%{_javadocdir}/%{name}-%{version}
+ln -s %{name}-%{version} %{buildroot}%{_javadocdir}/%{name} # ghost symlink
 rm -rf target/docs/apidocs
 %endif
 
 %if %{with_maven}
-install -dm 755 $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
-cp -pr target/docs/* $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
+install -dm 755 %{buildroot}%{_docdir}/%{name}-%{version}
+cp -pr target/docs/* %{buildroot}%{_docdir}/%{name}-%{version}
 %endif
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)

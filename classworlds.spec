@@ -30,6 +30,7 @@
 
 # We want to build without maven
 %define _without_maven 1
+%define gcj_support 1
 
 # If you don't want to build with maven,
 # give rpmbuild option '--without maven'
@@ -41,7 +42,8 @@
 
 Name:           classworlds
 Version:        %{classworlds_version}
-Release:        7
+Release:        %mkrel 1.2.0
+Epoch:          0
 Summary:        Classworlds Classloader Framework
 
 Group:          Development/Java
@@ -60,10 +62,15 @@ Patch0:         %{name}-%{version}-project_xml.patch
 Patch1:         %{name}-%{version}-project_properties.patch
 %endif
 
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
+%if %{gcj_support}
+BuildRequires:  java-gcj-compat-devel
+%else
 BuildArch:      noarch
-BuildRequires:  jpackage-utils >= 0:1.6
+BuildRequires:  java-devel
+%endif
+BuildRequires:  java-rpmbuild >= 0:1.6
 BuildRequires:  ant >= 0:1.6
 %if %{with_maven}
 BuildRequires:  maven >= 0:1.1
@@ -72,10 +79,10 @@ BuildRequires:  saxon-scripts
 %endif
 BuildRequires:  junit
 BuildRequires:  xerces-j2
-BuildRequires:  xml-commons-apis
+BuildRequires:  xml-commons-jaxp-1.3-apis
 Requires:  jpackage-utils
 Requires:  xerces-j2
-Requires:  xml-commons-apis
+Requires:  xml-commons-jaxp-1.3-apis
 
 %description
 Classworlds is a framework for container developers 
@@ -120,7 +127,7 @@ cp %{SOURCE1} build.xml
 %build
 %if %{with_maven}
 pushd lib
-ln -sf $(build-classpath xml-commons-apis) xmlApis-2.0.2.jar
+ln -sf $(build-classpath xml-commons-jaxp-1.3-apis) xmlApis-2.0.2.jar
 ln -sf $(build-classpath ant) jakarta-ant-1.5.jar
 ln -sf $(build-classpath maven) maven.jar
 popd
@@ -129,34 +136,50 @@ maven \
          -Dmaven.home.local=$(pwd)/.maven jar javadoc xdoc:transform
 %else
 export CLASSPATH=target/classes
-ant -Dbuild.sysclasspath=only
+%{ant} -Dbuild.sysclasspath=only
 %endif
 
 %install
-rm -rf %{buildroot}
+rm -rf $RPM_BUILD_ROOT
 install -Dpm 644 target/%{name}-%{version}.jar \
-  %{buildroot}%{_javadir}/%{name}-%{version}.jar
-ln -s %{name}-%{version}.jar %{buildroot}%{_javadir}/%{name}.jar
+  $RPM_BUILD_ROOT%{_javadir}/%{name}-%{version}.jar
+ln -s %{name}-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/%{name}.jar
 
 %if %{with_maven}
-install -dm 755 %{buildroot}%{_javadocdir}/%{name}-%{version}
-cp -pr target/docs/apidocs/* %{buildroot}%{_javadocdir}/%{name}-%{version}
-ln -s %{name}-%{version} %{buildroot}%{_javadocdir}/%{name} # ghost symlink
+install -dm 755 $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
+cp -pr target/docs/apidocs/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
+ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_javadocdir}/%{name} # ghost symlink
 rm -rf target/docs/apidocs
 %endif
 
 %if %{with_maven}
-install -dm 755 %{buildroot}%{_docdir}/%{name}-%{version}
-cp -pr target/docs/* %{buildroot}%{_docdir}/%{name}-%{version}
+install -dm 755 $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
+cp -pr target/docs/* $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
+%endif
+
+%if %{gcj_support}
+%{_bindir}/aot-compile-rpm
 %endif
 
 %clean
-rm -rf %{buildroot}
+rm -rf $RPM_BUILD_ROOT
+
+%if %{gcj_support}
+%post
+%{update_gcjdb}
+
+%postun
+%{clean_gcjdb}
+%endif
 
 %files
 %defattr(-,root,root,-)
 %doc LICENSE.txt
 %{_javadir}/*.jar
+%if %{gcj_support}
+%dir %{_libdir}/gcj/%{name}
+%attr(-,root,root) %{_libdir}/gcj/%{name}/*
+%endif
 
 %if %{with_maven}
 %files javadoc
@@ -168,3 +191,73 @@ rm -rf %{buildroot}
 %doc %{_docdir}/%{name}-%{version}
 %endif
 
+
+%changelog
+* Tue Nov 30 2010 Oden Eriksson <oeriksson@mandriva.com> 0:1.1-1.1.8mdv2011.0
++ Revision: 603836
+- rebuild
+
+* Tue Mar 16 2010 Oden Eriksson <oeriksson@mandriva.com> 0:1.1-1.1.7mdv2010.1
++ Revision: 522363
+- rebuilt for 2010.1
+
+* Sun Aug 09 2009 Oden Eriksson <oeriksson@mandriva.com> 0:1.1-1.1.6mdv2010.0
++ Revision: 413240
+- rebuild
+
+* Wed Jan 02 2008 Olivier Blin <oblin@mandriva.com> 0:1.1-1.1.5mdv2009.0
++ Revision: 140694
+- restore BuildRoot
+
+  + Thierry Vignaud <tv@mandriva.org>
+    - kill re-definition of %%buildroot on Pixel's request
+
+* Sun Dec 16 2007 Anssi Hannula <anssi@mandriva.org> 0:1.1-1.1.5mdv2008.1
++ Revision: 120852
+- buildrequire java-rpmbuild, i.e. build with icedtea on x86(_64)
+
+* Sat Sep 15 2007 Anssi Hannula <anssi@mandriva.org> 1.1.4mdv2008.0-current
++ Revision: 87285
+- rebuild to filter out autorequires of GCJ AOT objects
+- remove unnecessary Requires(post) on java-gcj-compat
+
+* Wed Jul 18 2007 Anssi Hannula <anssi@mandriva.org> 0:1.1-1.1.3mdv2008.0
++ Revision: 53181
+- use xml-commons-jaxp-1.3-apis explicitely instead of the generic
+  xml-commons-apis which is provided by multiple packages (see bug #31473)
+
+* Wed Jul 04 2007 David Walluck <walluck@mandriva.org> 0:1.1-1.1.2mdv2008.0
++ Revision: 47810
+- fix missing post scripts
+
+* Wed Jul 04 2007 David Walluck <walluck@mandriva.org> 0:1.1-1.1.1mdv2008.0
++ Revision: 47807
+- Import classworlds
+
+
+
+* Thu Feb 15 2007 Andrew Overholt <overholt@redhat.com> 0:1.1-1jpp.1
+- 1.1 final
+- Add instructions for generating tarball
+- Use Fedora buildroot
+- Do not use maven
+- Remove binary libraries; don't just move to .no
+- Remove Vendor and Distribution tags
+- Remove javadoc symlinking
+
+* Wed May 17 2006 Ralph Apel <r.apel at r-apel.de> - 0:1.1-0.a2.2jpp
+- First JPP-1.7 release
+
+* Mon Oct 31 2005 Ralph Apel <r.apel at r-apel.de> - 0:1.1-0.a2.1jpp
+- Upgrade to 1.1-alpha-2
+- Provide a way to build without maven
+
+* Fri Aug 20 2004 Ralph Apel <r.apel at r-apel.de> - 0:1.0-3jpp
+- Build with ant-1.6.2
+- Relax some versioned requirements
+
+* Tue Jun 01 2004 Randy Watler <rwatler at finali.com> - 0:1.0-2jpp
+- Upgrade to Ant 1.6.X
+
+* Wed Jan 28 2004 Ralph Apel <r.apel at r-apel.de> - 0:1.0-1jpp
+- First build.

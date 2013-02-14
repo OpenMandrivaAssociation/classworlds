@@ -30,7 +30,7 @@
 
 # We want to build without maven
 %define _without_maven 1
-%define gcj_support 1
+%define gcj_support 0
 
 # If you don't want to build with maven,
 # give rpmbuild option '--without maven'
@@ -160,9 +160,6 @@ cp -pr target/docs/* $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
 %if %{gcj_support}
 %{_bindir}/aot-compile-rpm
 %endif
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %if %{gcj_support}
 %post

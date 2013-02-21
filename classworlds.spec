@@ -74,8 +74,8 @@ BuildRequires:	ant >= 0:1.6
 BuildRequires:	maven >= 0:1.1
 BuildRequires:	saxon
 BuildRequires:	saxon-scripts
-%endif
 BuildRequires:	junit
+%endif
 BuildRequires:	xerces-j2
 BuildRequires:	xml-commons-jaxp-1.3-apis
 Requires:		jpackage-utils

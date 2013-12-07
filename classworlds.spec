@@ -42,7 +42,7 @@
 
 Name:			classworlds
 Version:		%{classworlds_version}
-Release:		1.2.1
+Release:		1.2.2
 Epoch:			0
 Summary:		Classworlds Classloader Framework
 
